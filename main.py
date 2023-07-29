@@ -44,6 +44,14 @@ def read_table_from_website(url):
     return data
 
 
+# Дата актуализации - </b>28.07.2023 21:47
+def get_time(url):
+    r = requests.get(url).text
+    idx = r.find('Дата актуализации')
+    t = r[idx + 24: idx + 24 + 16]
+    return t
+
+
 urls = ['https://priem.guap.ru/rating/1_20_1_1_1_f',
         'https://priem.guap.ru/rating/1_18_1_1_1_f',
         'https://priem.guap.ru/rating/1_19_1_1_1_f',
@@ -75,5 +83,6 @@ for i in full_data:
 
 to_write = ';'.join(header) + '\n' + to_write
 
-with open('out.csv', 'w') as f:
+time = get_time(urls[0])
+with open(f'{time}.csv', 'w') as f:
     f.write(to_write)
