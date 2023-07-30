@@ -9,6 +9,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import os
 
 
 def read_table_from_website(url):
@@ -52,37 +53,61 @@ def get_time(url):
     return t
 
 
-urls = ['https://priem.guap.ru/rating/1_20_1_1_1_f',
-        'https://priem.guap.ru/rating/1_18_1_1_1_f',
-        'https://priem.guap.ru/rating/1_19_1_1_1_f',
-        'https://priem.guap.ru/rating/1_17_1_1_1_f']
+urls = ['https://priem.guap.ru/rating/1_20_1_1_1_f',  # Программная инженерия
+        'https://priem.guap.ru/rating/1_18_1_1_1_f',  # Информационные системы и технологии
+        'https://priem.guap.ru/rating/1_19_1_1_1_f',  # Прикладная информатика
+        'https://priem.guap.ru/rating/1_17_1_1_1_f']  # Информатика и вычислительная техника
 data = []
 for url in urls:
     table_data = read_table_from_website(url)
     header = table_data[0]
-    data += table_data[1:]
+    data.append(table_data[1:])
+
+full_data = []
+for i in data:
+    for j in i:
+        full_data.append(j)
 
 # Создаем словарь для хранения уникальных вторых элементов
 unique_second_elements = {}
 
 # Фильтруем список, оставляя только элементы с уникальными вторыми элементами
-full_data = []
-for item in data:
-
+filtered_data = []
+for item in full_data:
     second_element = item[1]
     if second_element not in unique_second_elements:
         unique_second_elements[second_element] = True
-        full_data.append(item)
+        filtered_data.append(item)
 
-full_data = sorted(full_data, reverse=True, key=lambda x: x[3])
-print(len(full_data))
+filtered_data = sorted(filtered_data, reverse=True, key=lambda x: x[3])
+print(len(filtered_data))
+
+time = get_time(urls[0])
+os.mkdir(time)
 
 to_write = ''
-for i in full_data:
+for i in filtered_data:
     to_write += ';'.join(i) + '\n'
 
 to_write = ';'.join(header) + '\n' + to_write
 
-time = get_time(urls[0])
-with open(f'{time}.csv', 'w') as f:
+
+with open(f'{time}/total.csv', 'w') as f:
     f.write(to_write)
+
+to_write_urls = []
+for item in data:
+    d = ';'.join(header) + '\n'
+    for i in item:
+        d += ';'.join(i) + '\n'
+    to_write_urls.append(d)
+
+
+file_names = ['Программная инженерия.csv',
+              'Информационные системы и технологии.csv',
+              'Прикладная информатика.csv',
+              'Информатика и вычислительная техника.csv']
+
+for i in range(len(file_names)):
+    with open(f'{time}/{file_names[i]}', 'w') as f:
+        f.write(to_write_urls[i])
