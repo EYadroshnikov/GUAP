@@ -30,7 +30,7 @@ def read_table_from_website(url):
     if not tables:
         raise Exception("На странице нет таблиц")
 
-    table = tables[0]
+    table = tables[1]
 
     # Создаем список для хранения данных из таблицы
     data = []
@@ -83,7 +83,11 @@ filtered_data = sorted(filtered_data, reverse=True, key=lambda x: x[3])
 print(len(filtered_data))
 
 time = get_time(urls[0])
-os.mkdir(time)
+
+try:
+    os.mkdir(time)
+except Exception as e:
+    print(e)
 
 to_write = ''
 for i in filtered_data:
